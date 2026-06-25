@@ -1,0 +1,9 @@
+# Build output
+build/
+bin/
+
+# Object files
+*.o
+
+# Dependency files
+*.d
