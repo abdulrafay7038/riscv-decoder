@@ -1,8 +1,7 @@
-#include "decoder.h"
-#include "common.h"
+#include "../include/decoder.h"
+#include "../include/common.h"
 #include <stdio.h>
 #include <string.h>
-
 
 decoded_instr_t decode_instr(uint32_t instr){
     opcode_t opcode = EXTRACT_BITS(instr,6,0);
@@ -25,6 +24,8 @@ decoded_instr_t decode_instr(uint32_t instr){
 decoded_instr_t decode_r_type(uint32_t instr){
 
     decoded_instr_t r_type;
+    opcode_t opcode = EXTRACT_BITS(instr,6,0);
+    r_type.opcode = opcode;
     uint32_t funct3 = EXTRACT_BITS(instr,14,12);
     uint32_t funct7 = EXTRACT_BITS(instr,31,25);
     r_type.rd  = EXTRACT_BITS(instr,11,7);
@@ -90,15 +91,17 @@ decoded_instr_t decode_r_type(uint32_t instr){
 decoded_instr_t decode_i_type(uint32_t instr){
     opcode_t opcode = EXTRACT_BITS(instr,6,0);
     switch (opcode){
-        case OP_I_TYPE: return decode_arithmetic(instr); break;
-        case OP_LOAD:   return decode_load(instr); break;
-        case OP_JALR:   return decode_jump(instr); break;
+        case OP_I_TYPE: return decode_arithmetic(instr); 
+        case OP_LOAD:   return decode_load(instr); 
+        case OP_JALR:   return decode_jump(instr); 
     } 
 }
 
 decoded_instr_t decode_s_type(uint32_t instr){
 
     decoded_instr_t s_type;
+    opcode_t opcode = EXTRACT_BITS(instr,6,0);
+    s_type.opcode = opcode;
     uint32_t funct3 = EXTRACT_BITS(instr,14,12);
     s_type.rs1 = EXTRACT_BITS(instr,19,15);
     s_type.rs2 = EXTRACT_BITS(instr,24,20);
@@ -122,6 +125,8 @@ decoded_instr_t decode_s_type(uint32_t instr){
 decoded_instr_t decode_b_type(uint32_t instr){
 
     decoded_instr_t b_type;
+    opcode_t opcode = EXTRACT_BITS(instr,6,0);
+    b_type.opcode = opcode;
     uint32_t funct3 = EXTRACT_BITS(instr,14,12);
     b_type.rs1 = EXTRACT_BITS(instr,19,15);
     b_type.rs2 = EXTRACT_BITS(instr,24,20);
@@ -150,6 +155,7 @@ decoded_instr_t decode_b_type(uint32_t instr){
 decoded_instr_t decode_u_type(uint32_t instr){
     decoded_instr_t u_type;
     opcode_t opcode = EXTRACT_BITS(instr,6,0);
+    u_type.opcode = opcode;
     u_type.rd  = EXTRACT_BITS(instr,11,7);
 
     u_type.imm = EXTRACT_BITS(instr,31,12) << 12;
@@ -163,6 +169,8 @@ decoded_instr_t decode_u_type(uint32_t instr){
 
 decoded_instr_t decode_j_type(uint32_t instr){
     decoded_instr_t j_type;
+    opcode_t opcode = EXTRACT_BITS(instr,6,0);
+    j_type.opcode = opcode;
     j_type.rd  = EXTRACT_BITS(instr,11,7);
     strcpy(j_type.op, "jal");
     j_type.valid = true;
@@ -179,10 +187,10 @@ decoded_instr_t decode_j_type(uint32_t instr){
 
 //I-type sub functions
 
-decoded_instr_t decode_arithmetic(uint32_t instr)
-{
+decoded_instr_t decode_arithmetic(uint32_t instr){
     decoded_instr_t i_type;
-
+    opcode_t opcode = EXTRACT_BITS(instr,6,0);
+    i_type.opcode = opcode;
     uint32_t funct3 = EXTRACT_BITS(instr, 14, 12);
     uint32_t funct7 = EXTRACT_BITS(instr, 31, 25);
 
@@ -250,10 +258,10 @@ decoded_instr_t decode_arithmetic(uint32_t instr)
     return i_type;
 }
 
-decoded_instr_t decode_load(uint32_t instr)
-{
+decoded_instr_t decode_load(uint32_t instr){
     decoded_instr_t load;
-
+    opcode_t opcode = EXTRACT_BITS(instr,6,0);
+    load.opcode = opcode;
     uint32_t funct3 = EXTRACT_BITS(instr, 14, 12);
 
     load.rd  = EXTRACT_BITS(instr, 11, 7);
@@ -274,10 +282,10 @@ decoded_instr_t decode_load(uint32_t instr)
     return load;
 }
 
-decoded_instr_t decode_jump(uint32_t instr)
-{
+decoded_instr_t decode_jump(uint32_t instr){
     decoded_instr_t jump;
-
+    opcode_t opcode = EXTRACT_BITS(instr,6,0);
+    jump.opcode = opcode;
     uint32_t funct3 = EXTRACT_BITS(instr, 14, 12);
 
     jump.rd  = EXTRACT_BITS(instr, 11, 7);
@@ -296,4 +304,18 @@ decoded_instr_t decode_jump(uint32_t instr)
     }
 
     return jump;
+}
+
+void instr_to_string(decoded_instr_t instr){
+    switch (instr.opcode){
+        case OP_R_TYPE: printf("%s x%d, x%d, x%d\n", instr.op, instr.rd, instr.rs1, instr.rs2); break;
+        case OP_I_TYPE: printf("%s x%d, x%d, %d\n", instr.op, instr.rd, instr.rs1, instr.imm); break;
+        case OP_LOAD:   printf("%s x%d, %d(x%d)\n", instr.op, instr.rd, instr.imm, instr.rs1); break;
+        case OP_JALR:   printf("%s x%d, %d(x%d)\n", instr.op, instr.rd, instr.imm, instr.rs1); break;
+        case OP_STORE:  printf("%s x%d, %d(x%d)\n", instr.op, instr.rd, instr.imm, instr.rs1); break;
+        case OP_BRANCH: printf("%s x%d, x%d, x%d\n", instr.op, instr.rs1, instr.rs2, instr.imm); break;
+        case OP_LUI:    printf("%s x%d, x%d\n", instr.op, instr.rd, instr.imm);
+        case OP_AUIPC:  printf("%s x%d, x%d\n", instr.op, instr.rd, instr.imm);
+        case OP_JAL:    printf("%s x%d, x%d\n", instr.op, instr.rd, instr.imm);
+    }
 }
