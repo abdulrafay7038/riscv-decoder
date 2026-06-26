@@ -25,7 +25,7 @@ int main(int argc, char *argv[]){
     printf("\nAddr\t\t  Hex\t\t       Assembly\n");
     printf("----------     ----------      -------------------------\n");
 
-    uint32_t i = 0;
+    int i = 0;
     int valid = 0;
     int unknown = 0;
 

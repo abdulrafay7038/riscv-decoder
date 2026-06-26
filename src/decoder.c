@@ -94,6 +94,12 @@ decoded_instr_t decode_i_type(uint32_t instr){
         case OP_I_TYPE: return decode_arithmetic(instr); 
         case OP_LOAD:   return decode_load(instr); 
         case OP_JALR:   return decode_jump(instr); 
+        default:
+        {
+            decoded_instr_t unknown;
+            unknown.valid = false;
+            return unknown;
+        }
     } 
 }
 
@@ -162,6 +168,12 @@ decoded_instr_t decode_u_type(uint32_t instr){
     switch (opcode){
         case OP_AUIPC: strcpy(u_type.op, "auipc"); u_type.valid = true; break;
         case OP_LUI:   strcpy(u_type.op, "lui");   u_type.valid = true; break;
+        default:
+        {
+            decoded_instr_t unknown;
+            unknown.valid = false;
+            return unknown;
+        }
     }
     return u_type;
 }
@@ -290,17 +302,6 @@ decoded_instr_t decode_jump(uint32_t instr){
 
     jump.rd  = EXTRACT_BITS(instr, 11, 7);
     jump.rs1 = EXTRACT_BITS(instr, 19, 15);
-
-    if (jump.rd >=0 && jump.rd<=31) jump.valid = true;
-    else {
-        jump.valid = false;
-        return jump;
-    }
-    if (jump.rs1 >=0 && jump.rs1<=31) jump.valid = true;
-    else {
-        jump.valid = false;
-        return jump;
-    }
 
     jump.imm = (int32_t)(EXTRACT_BITS(instr, 31, 20) << 20) >> 20;
 
