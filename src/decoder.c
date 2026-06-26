@@ -171,6 +171,7 @@ decoded_instr_t decode_j_type(uint32_t instr){
     opcode_t opcode = EXTRACT_BITS(instr,6,0);
     j_type.opcode = opcode;
     j_type.rd  = EXTRACT_BITS(instr,11,7);
+    j_type.valid = true;
     strcpy(j_type.op, "jal");
     
     //Extraction and Sign Extension of imm
