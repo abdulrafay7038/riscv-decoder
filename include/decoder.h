@@ -1,16 +1,23 @@
+#ifndef DECODER_H
+#define DECODER_H
+
+#define MAX_OP_LEN 6
 #include<stdint.h>
 #include<stdbool.h>
-
+//sub functions for decoding instructions
 decoded_instr_t decode_r_type(uint32_t instr);
 decoded_instr_t decode_i_type(uint32_t instr);
 decoded_instr_t decode_s_type(uint32_t instr);
 decoded_instr_t decode_b_type(uint32_t instr);
 decoded_instr_t decode_u_type(uint32_t instr);
 decoded_instr_t decode_j_type(uint32_t instr);
-
+//subsub function for decoding I-type instruction
+decoded_instr_t decode_arithemetic(uint32_t instr);
+decoded_instr_t decode_load(uint32_t instr);
+decoded_instr_t decode_jump(uint32_t instr);
 
 typedef struct {    
-    char op[10];
+    char op[MAX_OP_LEN];
     uint32_t rd;
     uint32_t rs1;
     uint32_t rs2;
@@ -28,4 +35,6 @@ typedef enum {
     OP_JALR    = 0x67,  // Jump and link register 
     OP_LUI     = 0x37,  // Load upper immediate 
     OP_AUIPC   = 0x17,  // Add upper immediate to PC 
-} opcode_t; 
+} opcode_t;
+
+#endif
