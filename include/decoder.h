@@ -4,6 +4,8 @@
 #define MAX_OP_LEN 6
 #include<stdint.h>
 #include<stdbool.h>
+
+decoded_instr_t decode_instr(uint32_t instr);
 //sub functions for decoding instructions
 decoded_instr_t decode_r_type(uint32_t instr);
 decoded_instr_t decode_i_type(uint32_t instr);
@@ -11,7 +13,7 @@ decoded_instr_t decode_s_type(uint32_t instr);
 decoded_instr_t decode_b_type(uint32_t instr);
 decoded_instr_t decode_u_type(uint32_t instr);
 decoded_instr_t decode_j_type(uint32_t instr);
-//subsub function for decoding I-type instruction
+//subsub functions for decoding I-type instruction
 decoded_instr_t decode_arithemetic(uint32_t instr);
 decoded_instr_t decode_load(uint32_t instr);
 decoded_instr_t decode_jump(uint32_t instr);
