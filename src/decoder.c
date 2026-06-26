@@ -157,7 +157,6 @@ decoded_instr_t decode_u_type(uint32_t instr){
     opcode_t opcode = EXTRACT_BITS(instr,6,0);
     u_type.opcode = opcode;
     u_type.rd  = EXTRACT_BITS(instr,11,7);
-
     u_type.imm = EXTRACT_BITS(instr,31,12) << 12;
 
     switch (opcode){
@@ -173,7 +172,7 @@ decoded_instr_t decode_j_type(uint32_t instr){
     j_type.opcode = opcode;
     j_type.rd  = EXTRACT_BITS(instr,11,7);
     strcpy(j_type.op, "jal");
-    j_type.valid = true;
+    
     //Extraction and Sign Extension of imm
     uint32_t imm20    = EXTRACT_BITS(instr, 31, 31);
     uint32_t imm19_12 = EXTRACT_BITS(instr, 19, 12);
@@ -291,6 +290,17 @@ decoded_instr_t decode_jump(uint32_t instr){
     jump.rd  = EXTRACT_BITS(instr, 11, 7);
     jump.rs1 = EXTRACT_BITS(instr, 19, 15);
 
+    if (jump.rd >=0 && jump.rd<=31) jump.valid = true;
+    else {
+        jump.valid = false;
+        return jump;
+    }
+    if (jump.rs1 >=0 && jump.rs1<=31) jump.valid = true;
+    else {
+        jump.valid = false;
+        return jump;
+    }
+
     jump.imm = (int32_t)(EXTRACT_BITS(instr, 31, 20) << 20) >> 20;
 
     if (funct3 == 0x0)
@@ -308,14 +318,14 @@ decoded_instr_t decode_jump(uint32_t instr){
 
 void instr_to_string(decoded_instr_t instr){
     switch (instr.opcode){
-        case OP_R_TYPE: printf("%s x%d, x%d, x%d\n", instr.op, instr.rd, instr.rs1, instr.rs2); break;
-        case OP_I_TYPE: printf("%s x%d, x%d, %d\n", instr.op, instr.rd, instr.rs1, instr.imm); break;
-        case OP_LOAD:   printf("%s x%d, %d(x%d)\n", instr.op, instr.rd, instr.imm, instr.rs1); break;
-        case OP_JALR:   printf("%s x%d, %d(x%d)\n", instr.op, instr.rd, instr.imm, instr.rs1); break;
-        case OP_STORE:  printf("%s x%d, %d(x%d)\n", instr.op, instr.rd, instr.imm, instr.rs1); break;
-        case OP_BRANCH: printf("%s x%d, x%d, x%d\n", instr.op, instr.rs1, instr.rs2, instr.imm); break;
-        case OP_LUI:    printf("%s x%d, x%d\n", instr.op, instr.rd, instr.imm);
-        case OP_AUIPC:  printf("%s x%d, x%d\n", instr.op, instr.rd, instr.imm);
-        case OP_JAL:    printf("%s x%d, x%d\n", instr.op, instr.rd, instr.imm);
+        case OP_R_TYPE: printf("%-7s x%d, x%d, x%d\n", instr.op, instr.rd, instr.rs1, instr.rs2); break;
+        case OP_I_TYPE: printf("%-7s x%d, x%d, 0x%X\n", instr.op, instr.rd, instr.rs1, instr.imm); break;
+        case OP_LOAD:   printf("%-7s x%d, %d(x%d)\n", instr.op, instr.rd, instr.imm, instr.rs1); break;
+        case OP_JALR:   printf("%-7s x%d, %d(x%d)\n", instr.op, instr.rd, instr.imm, instr.rs1); break;
+        case OP_STORE:  printf("%-7s x%d, %d(x%d)\n", instr.op, instr.rs2, instr.imm, instr.rs1); break;
+        case OP_BRANCH: printf("%-7s x%d, x%d, 0x%X\n", instr.op, instr.rs1, instr.rs2, instr.imm); break;
+        case OP_LUI:    printf("%-7s x%d, 0x%X\n", instr.op, instr.rd, instr.imm); break;
+        case OP_AUIPC:  printf("%-7s x%d, 0x%X\n", instr.op, instr.rd, instr.imm); break;
+        case OP_JAL:    printf("%-7s x%d, 0x%X\n", instr.op, instr.rd, instr.imm); break;
     }
 }
