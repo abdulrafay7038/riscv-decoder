@@ -3,27 +3,30 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -g
 
-TARGET = run
-SRCS = src/main.c src/decoder.c src/memory.c
+SRCS1 = src/main.c src/decoder.c src/memory.c
+SRCS2 = src/decoder.c test/test_decoder.c
 
-all: test
-
-$(TARGET):
-	$(CC) $(CFLAGS) $(SRCS) -o $(TARGET)
-
-test: $(TARGET)
+all:
 	@printf "\nRISC-V RV32I Instruction Decoder\n"
 	@printf "================================\n\n"
-	@./$(TARGET) test/programs/i_type.hex
-	@./$(TARGET) test/programs/r_type.hex
-	@./$(TARGET) test/programs/branch.hex
-	@./$(TARGET) test/programs/mixed.hex
+	@$(CC) $(CFLAGS) $(SRCS1) -o run
+	@./run test/programs/i_type.hex
+	@./run test/programs/r_type.hex
+	@./run test/programs/branch.hex
+	@./run test/programs/mixed.hex
 
-valgrind: $(TARGET)
-	valgrind --leak-check=full ./$(TARGET) test/programs/r_type.hex
+test:
+	@$(CC) $(CFLAGS) $(SRCS2) -o test_decoder
+	@./test_decoder
 
-debug: $(TARGET)
-	gdb ./$(TARGET)
+valgrind: run
+	valgrind --leak-check=full ./run test/programs/r_type.hex
+	valgrind --leak-check=full ./run test/programs/i_type.hex
+	valgrind --leak-check=full ./run test/programs/branch.hex
+	valgrind --leak-check=full ./run test/programs/mixed.hex
 
+debug: run
+	@gdb --args ./run test/programs/mixed.hex
+	
 clean:
-	rm -f $(TARGET)
+	@rm -f run
