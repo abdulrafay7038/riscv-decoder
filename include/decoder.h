@@ -5,27 +5,6 @@
 #include<stdint.h>
 #include<stdbool.h>
 
-decoded_instr_t decode_instr(uint32_t instr);
-//sub functions for decoding instructions
-decoded_instr_t decode_r_type(uint32_t instr);
-decoded_instr_t decode_i_type(uint32_t instr);
-decoded_instr_t decode_s_type(uint32_t instr);
-decoded_instr_t decode_b_type(uint32_t instr);
-decoded_instr_t decode_u_type(uint32_t instr);
-decoded_instr_t decode_j_type(uint32_t instr);
-//subsub functions for decoding I-type instruction
-decoded_instr_t decode_arithemetic(uint32_t instr);
-decoded_instr_t decode_load(uint32_t instr);
-decoded_instr_t decode_jump(uint32_t instr);
-
-typedef struct {    
-    char op[MAX_OP_LEN];
-    uint32_t rd;
-    uint32_t rs1;
-    uint32_t rs2;
-    int32_t imm;
-    bool valid;
-} decoded_instr_t;
 
 typedef enum { 
     OP_R_TYPE  = 0x33,  // Register-register 
@@ -38,5 +17,32 @@ typedef enum {
     OP_LUI     = 0x37,  // Load upper immediate 
     OP_AUIPC   = 0x17,  // Add upper immediate to PC 
 } opcode_t;
+
+//Structure for decoded instruction;
+typedef struct {
+    opcode_t opcode;    
+    char op[MAX_OP_LEN];
+    uint32_t rd;
+    uint32_t rs1;
+    uint32_t rs2;
+    int32_t imm;
+    bool valid;
+} decoded_instr_t;
+
+//Convert Instruction to string
+void instr_to_string(decoded_instr_t instr);
+
+decoded_instr_t decode_instr(uint32_t instr);
+//sub functions for decoding instructions
+decoded_instr_t decode_r_type(uint32_t instr);
+decoded_instr_t decode_i_type(uint32_t instr);
+decoded_instr_t decode_s_type(uint32_t instr);
+decoded_instr_t decode_b_type(uint32_t instr);
+decoded_instr_t decode_u_type(uint32_t instr);
+decoded_instr_t decode_j_type(uint32_t instr);
+//subsub functions for decoding I-type instruction
+decoded_instr_t decode_arithmetic(uint32_t instr);
+decoded_instr_t decode_load(uint32_t instr);
+decoded_instr_t decode_jump(uint32_t instr);
 
 #endif
