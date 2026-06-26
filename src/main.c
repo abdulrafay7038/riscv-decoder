@@ -21,32 +21,30 @@ int main(int argc, char *argv[]){
         return 1;
     }
     
-    printf("RISC-V RV32I Instruction Decoder\n");
-    printf("================================\n");
     printf("Loaded %d instructions from %s\n", n, argv[1]);
-    printf("\nAddr\t\t  Hex\t\tAssembly\n");
-    printf("----------     ---------- -------------------------\n");
+    printf("\nAddr\t\t  Hex\t\t       Assembly\n");
+    printf("----------     ----------      -------------------------\n");
 
     uint32_t i = 0;
     int valid = 0;
     int unknown = 0;
 
     while (i<n*4){
-        uint32_t packed_instr = (mem[i] | mem[i+1] << 8 | mem[i+2] << 16 | mem[i+3] << 24);
-        decoded_instr_t decoded_instr = decode_instr(packed_instr);
+        uint32_t instr = read_mem(mem, i);
+        decoded_instr_t decoded_instr = decode_instr(instr);
 
-        char *instr_string;
         if (decoded_instr.valid == true){
             valid +=1;
-            instr_string = instr_to_string(decoded_instr);
+            printf("0x%08X\t%08X\t", i, instr);
+            instr_to_string(decoded_instr);
         }
         else if(decoded_instr.valid == false){
             unknown +=1;
-            instr_string = "UNKNOWN";
+            printf("0x%08X\t%08X\tUNKNOWN\n", i, instr);
         }
-
-        printf("0x%08X\t%08X\n", i, packed_instr);
         i +=4;
     }
-    printf("\nDecoded %d instructions (%d valid, %d unknown)\n", n, valid, unknown);
+    printf("\nDecoded %d instructions (%d valid, %d unknown)\n\n", n, valid, unknown);
+    free(mem);
+    return 0;
 }    
