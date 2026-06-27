@@ -246,4 +246,4 @@ This project demonstrates:
 
 ## License
 
-This project was developed for educational purposes.
+Author: Abdul Rafay
