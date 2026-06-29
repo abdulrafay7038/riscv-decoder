@@ -3,12 +3,15 @@
 #include <stdlib.h>
 #include "../include/memory.h"
 
+// Read Little-Endian Byte-addressable memory
+
 uint32_t read_mem (uint8_t *memory, int addr)
 {
     if (addr % 4 != 0) return -1;
     else return (memory[addr] | memory[addr+1] << 8 | memory[addr+2] << 16 | memory[addr+3] << 24);
 }
 
+// Load Hex file into memory
 int load_hex_file(const char *filename, uint8_t *memory, size_t mem_size)
 {
     FILE *fp = fopen(filename, "r");

@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 
+// Top Function for Instruction Decoding
 decoded_instr_t decode_instr(uint32_t instr){
     opcode_t opcode = EXTRACT_BITS(instr,6,0);
     decoded_instr_t unknown;
@@ -21,6 +22,7 @@ decoded_instr_t decode_instr(uint32_t instr){
     }
 }
 
+// R-Type Decode
 decoded_instr_t decode_r_type(uint32_t instr){
 
     decoded_instr_t r_type;
@@ -32,6 +34,7 @@ decoded_instr_t decode_r_type(uint32_t instr){
     r_type.rs1 = EXTRACT_BITS(instr,19,15);
     r_type.rs2 = EXTRACT_BITS(instr,24,20);
 
+// funct3 and funct7 check
     if (funct3 == 0x0){
         if (funct7 == 0x00) {
             strcpy(r_type.op, "add"); 
@@ -87,7 +90,7 @@ decoded_instr_t decode_r_type(uint32_t instr){
     else r_type.valid = false;
     return r_type;
 }
-
+// I-Type Decode
 decoded_instr_t decode_i_type(uint32_t instr){
     opcode_t opcode = EXTRACT_BITS(instr,6,0);
     switch (opcode){
@@ -102,7 +105,7 @@ decoded_instr_t decode_i_type(uint32_t instr){
         }
     } 
 }
-
+// S-Type Decode
 decoded_instr_t decode_s_type(uint32_t instr){
 
     decoded_instr_t s_type;
@@ -112,6 +115,7 @@ decoded_instr_t decode_s_type(uint32_t instr){
     s_type.rs1 = EXTRACT_BITS(instr,19,15);
     s_type.rs2 = EXTRACT_BITS(instr,24,20);
 
+    // Extract 12-bit immediate
     uint32_t imm11_5 = EXTRACT_BITS(instr,31,25);
     uint32_t imm4_0  = EXTRACT_BITS(instr,11,7);
 
@@ -128,6 +132,7 @@ decoded_instr_t decode_s_type(uint32_t instr){
     return s_type;
 }
 
+// B-Type Decode
 decoded_instr_t decode_b_type(uint32_t instr){
 
     decoded_instr_t b_type;
@@ -136,14 +141,14 @@ decoded_instr_t decode_b_type(uint32_t instr){
     uint32_t funct3 = EXTRACT_BITS(instr,14,12);
     b_type.rs1 = EXTRACT_BITS(instr,19,15);
     b_type.rs2 = EXTRACT_BITS(instr,24,20);
-
+    // Extract immediate
     uint32_t imm12   = EXTRACT_BITS(instr, 31, 31);
     uint32_t imm11   = EXTRACT_BITS(instr, 7, 7);
     uint32_t imm10_5 = EXTRACT_BITS(instr, 30, 25);
     uint32_t imm4_1  = EXTRACT_BITS(instr, 11, 8);
 
     uint32_t imm = (imm12   << 12) | (imm11   << 11) | (imm10_5 << 5) | (imm4_1  << 1);
-
+    // Sign-Extend immediate
     b_type.imm = (int32_t)(imm << 19) >> 19;
     
     switch (funct3){
@@ -158,6 +163,7 @@ decoded_instr_t decode_b_type(uint32_t instr){
     return b_type;
 }
 
+// U-Type Decode
 decoded_instr_t decode_u_type(uint32_t instr){
     decoded_instr_t u_type;
     opcode_t opcode = EXTRACT_BITS(instr,6,0);
@@ -178,6 +184,7 @@ decoded_instr_t decode_u_type(uint32_t instr){
     return u_type;
 }
 
+// J-Type Decode
 decoded_instr_t decode_j_type(uint32_t instr){
     decoded_instr_t j_type;
     opcode_t opcode = EXTRACT_BITS(instr,6,0);
@@ -186,12 +193,13 @@ decoded_instr_t decode_j_type(uint32_t instr){
     j_type.valid = true;
     strcpy(j_type.op, "jal");
     
-    //Extraction and Sign Extension of imm
+    // Extract immediate
     uint32_t imm20    = EXTRACT_BITS(instr, 31, 31);
     uint32_t imm19_12 = EXTRACT_BITS(instr, 19, 12);
     uint32_t imm11    = EXTRACT_BITS(instr, 20, 20);
     uint32_t imm10_1  = EXTRACT_BITS(instr, 30, 21);
     uint32_t imm = (imm20    << 20) | (imm19_12 << 12) | (imm11    << 11) | (imm10_1  << 1);
+    // Sign-Extend immediate
     j_type.imm = (int32_t)(imm << 11) >> 11;
 
     return j_type;
@@ -208,6 +216,7 @@ decoded_instr_t decode_arithmetic(uint32_t instr){
 
     i_type.rd  = EXTRACT_BITS(instr, 11, 7);
     i_type.rs1 = EXTRACT_BITS(instr, 19, 15);
+    // Extract and Sign-Extend immediate
     i_type.imm = (int32_t)(EXTRACT_BITS(instr, 31, 20) << 20) >> 20;
 
     switch (funct3)
@@ -278,9 +287,9 @@ decoded_instr_t decode_load(uint32_t instr){
 
     load.rd  = EXTRACT_BITS(instr, 11, 7);
     load.rs1 = EXTRACT_BITS(instr, 19, 15);
-
+    // Extract and Sign-Extend immediate
     load.imm = (int32_t)(EXTRACT_BITS(instr, 31, 20) << 20) >> 20;
-
+    
     switch (funct3)
     {
         case 0x0: strcpy(load.op, "lb");  load.valid = true; break;
@@ -290,7 +299,7 @@ decoded_instr_t decode_load(uint32_t instr){
         case 0x5: strcpy(load.op, "lhu"); load.valid = true; break;
         default:  load.valid = false;
     }
-
+    
     return load;
 }
 
@@ -302,7 +311,7 @@ decoded_instr_t decode_jump(uint32_t instr){
 
     jump.rd  = EXTRACT_BITS(instr, 11, 7);
     jump.rs1 = EXTRACT_BITS(instr, 19, 15);
-
+    // Extract and Sign-Extend immediate
     jump.imm = (int32_t)(EXTRACT_BITS(instr, 31, 20) << 20) >> 20;
 
     if (funct3 == 0x0)
@@ -318,6 +327,7 @@ decoded_instr_t decode_jump(uint32_t instr){
     return jump;
 }
 
+//Instruction to Assembly converter
 void instr_to_string(decoded_instr_t instr){
     switch (instr.opcode){
         case OP_R_TYPE: printf("%-7s x%d, x%d, x%d\n", instr.op, instr.rd, instr.rs1, instr.rs2); break;
